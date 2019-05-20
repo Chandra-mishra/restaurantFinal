@@ -1,0 +1,84 @@
+{
+  "Monday": 
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+  
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+      
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  "Tuesday":
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+    
+    
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+    
+    
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  
+  "Wednesday": 
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+    
+    
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+    
+    
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  
+  "Thursday": 
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+    
+    
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+    
+    
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  
+  "Friday": 
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+    
+    
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+    
+    
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  
+  "Saturday": 
+    {
+      "isBreakfast": true,
+      "Breakfast": "8AM-11AM",
+    
+    
+      "isLunch": true,
+      "Lunch": "1PM-3PM",
+    
+    
+      "isDinner": true,
+      "Dinner": "7PM-11PM"
+    },
+  
+  "Sunday": "Closed"
+}
