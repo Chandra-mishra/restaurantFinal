@@ -1,6 +1,6 @@
 /package-lock.json
 /views
-/node-modules
+/node_modules
 /controller/hr.js
 /controller/hours2.json
 /controller/hoursMissingHolidays.json
