@@ -1,4 +1,4 @@
-const waterfall = require('async-waterfall');
+ const waterfall = require('async-waterfall');
 const express = require('express');
 const async = require('async');
 const router = express.Router();
@@ -6,6 +6,7 @@ const Owner = require('../model/ownerModel');
 const Menu = require('../model/menuModel');
 const Special = require('../model/item');
 const Restaurant = require('../model/restaurantModels');
+const Order = require('../model/order');
 const Hours = require('./hr');
 const hours = require('./hours.json');
 const fs = require('fs');
@@ -194,6 +195,52 @@ router.delete('/specialitem/:id',(req,res)=>{
     });
 });
 
+//insert and update order items
+router.post('/orderItem',(req,res)=>{
+    var order = {
+        name : req.body.name,
+       item_name: req.body.item_name,
+        price : req.body.price,
+        email: req.body.email,
+        phone: req.body.phone
+    }
+    //create ordered items
+    var orderItemsInfo = new Order(order);
+ 
+    orderItemsInfo.save().then(()=>{
+        console.log('successfully inserted special items');
+    }).catch((err)=>{
+        if(err){
+            throw err;
+        }
+  });
+  res.send('successfully inserted special items');
+});
+//update special items
+router.post('/orderupdate',(req,res)=>{
+    Order.findByIdAndUpdate(req.body._id,{
+        name : req.body.name,
+        item_name: req.body.item_name,
+         price : req.body.price,
+         email: req.body.email,
+         phone: req.body.phone
+    },
+    function(err){
+        if(err) throw err;
+        res.send('thank you for updating special items');
+    });
+    });
+//delete special items
+router.delete('/orderitem/:id',(req,res)=>{
+    Order.findByIdAndDelete(req.params.id).then(()=>{
+        res.send('successfully removed special items');
+    }).catch(err=>{
+        if(err){
+            throw err;
+        }
+        
+    });
+});
 
 //populating ownerInfo and menuDetails
 router.get('/restaurantdetails',(req,res)=>{
@@ -451,5 +498,11 @@ router.post('/charge', (req, res) => {
           res.send(allSpecialInfo);
       })
   });
+//get all order items
+router.get('/allorderitems',(req,res)=>{
+Order.find({},(err,allorderinfo)=>{
+    if(err) throw err;
+    res.send(allorderinfo);
+})
+});
 module.exports = router;
-
