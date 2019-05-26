@@ -4,54 +4,46 @@ const async = require('async');
 const router = express.Router();
 const Owner = require('../model/ownerModel');
 const Menu = require('../model/menuModel');
+const Special = require('../model/item');
 const Restaurant = require('../model/restaurantModels');
 const Hours = require('./hr');
 const hours = require('./hours.json');
 const fs = require('fs');
-router.post('/ownerinfo', (req, res) => {
-    if (req.body._id == '')
-        insertRecord(req, res);
-        else
-        updateRecord(req, res);
-});
+const keys = require('../config/keys');
+const stripe = require('stripe')(keys.stripeSecretKey);
 
-   function insertRecord(req,res){
+router.post('/ownerinfo',(req,res)=>{
     var owner = {
         name : req.body.name,
         phone : req.body.phone,
         email : req.body.email
     }
-    //create new ownerinfo
-    var ownerInfo = new Owner(owner);
+    //create new owner
+    var owners = new Owner(owner);
  
-    ownerInfo.save().then(()=>{
-        console.log('owner data inserted sucessfully');
+    owners.save().then(()=>{
+        console.log('new owner created');
     }).catch((err)=>{
         if(err){
             throw err;
         }
   });
-  res.send('Thank you inserting owner info!!!');
+  res.send('thank you for inserting new items!');
+});
 
-   } 
+//updating ownerInfo
+router.post('/ownerupdate',(req,res)=>{
+Owner.findByIdAndUpdate(req.body._id,{
+    name: req.body.name,
+    phone: req.body.phone,
+    email: req.body.email
+},
+function(err){
+    if(err) throw err;
+    res.send('thank you for updating owner info');
+});
+});
 
-   //update ownerInfo
-   function updateRecord(req,res){
-     Owner.findOneAndUpdate(req.body._id,{
-        name : req.body.name,
-        phone : req.body.phone,
-        email : req.body.email
-     },{ new: true },(err,doc)=>{
-        
-        if(!err){
-              res.json(doc);
-        }
-        else{
-               console.log('please correct the error'+err);
-        }
-     });
-
-   }
 //delete ownerInfo
 router.delete('/owner/:id',(req,res)=>{
     Owner.findOneAndRemove(req.params.id).then(()=>{
@@ -63,53 +55,87 @@ router.delete('/owner/:id',(req,res)=>{
         
     });
 });
-//insert and update restaurantinfo
-   router.post('/restaurantinfo', (req, res) => {
-    if (req.body._id == '')
-        insertRestaurent(req, res);
-        else
-        updateRestaurant(req, res);
-});
-
-//insert restaurant details
-function insertRestaurent(req,res){
-    var restaurant = {
-        location : req.body.location,
-        opening_hours : req.body.opening_hours,
-        //reservation_table: req.body.reservation_table,
-       // good_for: req.body.good_for
+//insert and update menuInfo
+router.post('/menuinfo',(req,res)=>{
+    var menu = {
+        name : req.body.name,
+        price : req.body.price,
+        priceCurrency : req.body.priceCurrency,
+        item_description: req.body.item_description,
+        item_avaliable_time: req.body.item_avaliable_time
     }
-    //create new reservation
-    var reservationInfo = new Restaurant(restaurant);
-    reservationInfo.save().then(()=>{
-        console.log('successfully inserted.');
-    })
-    .catch((err)=>{
+    //create new menu
+    var menuInfo = new Menu(menu);
+ 
+    menuInfo.save().then(()=>{
+        console.log('new menu created');
+    }).catch((err)=>{
         if(err){
             throw err;
         }
-    })
-    res.send('thank you for inserting new restaurant details');
-}
+  });
+  res.send('successfully created menu');
+});
 
-//update restaurant
-function updateRestaurant(req,res){
-    Restaurant.findOneAndUpdate(req.body._id,{
-        location : req.body.location,
-        opening_hours : req.body.opening_hours
-     },{ new: true },(err,doc)=>{
+//update menu info
+router.post('/menuupdate',(req,res)=>{
+    Menu.findByIdAndUpdate(req.body._id,{
+        name : req.body.name,
+        price : req.body.price,
+        priceCurrency : req.body.priceCurrency,
+        item_description: req.body.item_description,
+        item_avaliable_time: req.body.item_avaliable_time
+    },
+    function(err){
+        if(err) throw err;
+        res.send('thank you for updating owner info');
+    });
+    });
+
+  
+//delete menuinfo
+router.delete('/menu/:id',(req,res)=>{
+    Menu.findByIdAndDelete(req.params.id).then(()=>{
+        res.send('successfully removed menuItem');
+    }).catch(err=>{
+        if(err){
+            throw err;
+        }
         
-        if(!err){
-              res.json(doc);
+    });
+});
+//insert and update restaurant info
+router.post('/restaurantinfo',(req,res)=>{
+    var restaurant = {
+        name : req.body.name,
+        location: req.body.location
+    }
+    //create restaurant details
+    var restaurantInfo = new Restaurant(restaurant);
+ 
+    restaurantInfo.save().then(()=>{
+        console.log('restaurant details inserted');
+    }).catch((err)=>{
+        if(err){
+            throw err;
         }
-        else{
-               console.log('please correct the error'+err);
-        }
-     });  
-}
-//delete restaurantInfo
+  });
+  res.send('restaurant details inserted');
+});
+//update restaurant info
+router.post('/restaurantupdate',(req,res)=>{
+    Restaurant.findByIdAndUpdate(req.body._id,{
+        name : req.body.name,
+        location: req.body.location
+    },
+    function(err){
+        if(err) throw err;
+        res.send('thank you for updating owner info');
+    });
+    });
+//delete restaurant 
 router.delete('/restaurant/:id',(req,res)=>{
-    Restaurant.findOneAndRemove(req.params.id).then(()=>{
+    Restaurant.findByIdAndDelete(req.params.id).then(()=>{
         res.send('successfully removed restaurantInfo');
     }).catch(err=>{
         if(err){
@@ -119,65 +145,61 @@ router.delete('/restaurant/:id',(req,res)=>{
     });
 });
 
+//------------------------------------------------------------------
 
-router.post('/menudetails', (req, res) => {
-    if (req.body._id == '')
-        insertMenu(req, res);
-        else
-        updateMenu(req, res);
-});
-
-//insert menu
-function insertMenu(req,res){
-    var menu = {
+//insert and update special items
+router.post('/specialItem',(req,res)=>{
+    var special = {
         name : req.body.name,
-       price: req.body.price
+        price : req.body.price,
+        priceCurrency : req.body.priceCurrency,
+        item_description: req.body.item_description,
+        item_avaliable_time: req.body.item_avaliable_time
     }
-    //create new menu
-    var menuInfo = new Menu(menu);
+    //create special items
+    var specialItemsInfo = new Special(special);
  
-    menuInfo.save().then(()=>{
-        console.log('sussfully inserted menu data.');
+    specialItemsInfo.save().then(()=>{
+        console.log('successfully inserted special items');
     }).catch((err)=>{
         if(err){
             throw err;
         }
   });
-  res.send('Thank you inserting menu details!!!');
-}
-
-//update menu
-function updateMenu(req,res){
-    Menu.findOneAndUpdate(req.body._id,{
+  res.send('successfully inserted special items');
+});
+//update special items
+router.post('/specialupdate',(req,res)=>{
+    Special.findByIdAndUpdate(req.body._id,{
         name : req.body.name,
-        price: req.body.price
-     },{ new: true },(err,doc)=>{
-        
-        if(!err){
-              res.json(doc);
-        }
-        else{
-               console.log('please correct the error'+err);
-        }
-     });    
-}
-
-///delete menudetails
-router.get('/menu/:id',(req,res)=>{
-    Menu.findOneAndRemove(req.params.id).then(()=>{
-        res.send('successfully removed menuInfo');
+        price : req.body.price,
+        priceCurrency : req.body.priceCurrency,
+        item_description: req.body.item_description,
+        item_avaliable_time: req.body.item_avaliable_time
+    },
+    function(err){
+        if(err) throw err;
+        res.send('thank you for updating special items');
+    });
+    });
+//delete special items
+router.delete('/specialitem/:id',(req,res)=>{
+    Special.findByIdAndDelete(req.params.id).then(()=>{
+        res.send('successfully removed special items');
     }).catch(err=>{
         if(err){
-           throw err;
+            throw err;
         }
         
     });
 });
 
+
 //populating ownerInfo and menuDetails
 router.get('/restaurantdetails',(req,res)=>{
 async.waterfall([
     ownerInfo,
+    specialItems,
     menuDetails,
     restaurantInfo
 ],function (err, result) {
@@ -199,12 +221,26 @@ async.waterfall([
         });
         
     }
-    function menuDetails(arg1,callback){
+
+    function specialItems(arg1,callback){
+        Special.find().then((specialItems1) =>{
+           //var specialItem=specialItems1;
+            //specialItem.subItems = arg2;
+           // specialItem.map((mergeOwner)=>{mergeOwner.subItems = arg2});
+           callback(null,arg1,specialItems1);
+       }).catch(err=>{
+            if(err){
+               callback(err,null);
+            }
+       });
+       
+   }
+    function menuDetails(arg1,arg2,callback){
          Menu.find().then((menuItems1) =>{
-            //var menuItems=menuItems1;
-             //menuItems[0].fk_user = arg1;
-             //menuItems.map((mergeOwner)=>{mergeOwner.fk_user = arg1});
-            callback(null,arg1,menuItems1);
+            var menuItems=menuItems1;
+             //menuItems.subItems = arg2;
+             menuItems.map((mergeOwner)=>{mergeOwner.subItems = arg2});
+            callback(null,arg1,arg2,menuItems1);
         }).catch(err=>{
              if(err){
                 callback(err,null);
@@ -212,12 +248,15 @@ async.waterfall([
         });
         
     }
-    function restaurantInfo(arg1,arg2,callback){
+
+
+    function restaurantInfo(arg1,arg2,arg3,callback){
         Restaurant.find().then((restaurantInfo)=>{
             var restaurant = restaurantInfo;
             restaurant.map((mergeRestaurant) => {
                 mergeRestaurant.ownerDetails = arg1;
-                mergeRestaurant.menuDetails = arg2;
+                mergeRestaurant.menuDetails = arg3;
+                mergeRestaurant.specialItems = arg2;
             });
             callback(null,restaurant);
         }).catch(err =>{
@@ -367,10 +406,50 @@ router.get('/businesshour',(req,res)=>{
     fs.readFile('./controller/hours.json', (err, data) => {  
         if (err) throw err;
         let hours = JSON.parse(data);
+        if(hours)
             res.json(hours);
             
     });
 });
 
+// Charge Route
+router.post('/charge', (req, res) => {
+    stripe.customers.create({
+      amount:req.body.amount,
+      email: req.body.stripeEmail,
+      source: req.body.stripeToken
+    })
+    .then(customer => stripe.charges.create({
+      amount,
+      description: 'Buying restaurant items',
+      currency: 'INR',
+      customer: customer.id
+    }))
+    .then((charge)=>{
+        res.send(charge);
+    });
+  });
+//get all owner info
+  router.get('/allOwnerInfo',(req,res)=>{
+    Owner.find({},function(err,allOwnerInfo){
+        if(err) throw err;
+        res.send(allOwnerInfo);
+    })
+  });
+  //get all menu info
+  router.get('/allMenuInfo',(req,res)=>{
+    Menu.find({},(err,allMenuInfo)=>{
+        if(err) throw err;
+        res.send(allMenuInfo);
+
+    })
+  });
+  //get all special item info
+  router.get('/allspecialItem',(req,res)=>{
+      Special.find({},(err,allSpecialInfo)=>{
+          if(err) throw err;
+          res.send(allSpecialInfo);
+      })
+  });
 module.exports = router;
 
